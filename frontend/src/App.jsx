@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+const API_URL =
+  "https://ai-business-assistant-backend-ten.vercel.app";
+
 function App() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
   const [loading, setLoading] = useState(false);
@@ -16,13 +19,20 @@ function App() {
   });
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/health")
+    fetch(`${API_URL}/api/health`)
       .then((res) => {
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          throw new Error("Backend unavailable");
+        }
+
         return res.json();
       })
-      .then((data) => setBackendStatus(data.status))
-      .catch(() => setBackendStatus("offline"));
+      .then((data) => {
+        setBackendStatus(data.status);
+      })
+      .catch(() => {
+        setBackendStatus("offline");
+      });
   }, []);
 
   function handleChange(e) {
@@ -52,7 +62,7 @@ function App() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/generate", {
+      const response = await fetch(`${API_URL}/api/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,12 +73,16 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || "Failed to generate content");
+        throw new Error(
+          data.detail || "Failed to generate content"
+        );
       }
 
       setResult(data);
     } catch (err) {
-      setError(err.message || "Could not connect to the backend.");
+      setError(
+        err.message || "Could not connect to the backend."
+      );
     } finally {
       setLoading(false);
     }
@@ -87,14 +101,17 @@ function App() {
             className={`status-dot ${
               backendStatus === "healthy" ? "online" : ""
             }`}
-          />
+          ></span>
+
           Backend: {backendStatus}
         </div>
       </header>
 
       <main className="main">
         <section className="hero">
-          <p className="eyebrow">AI-POWERED BUSINESS TOOLS</p>
+          <p className="eyebrow">
+            AI-POWERED BUSINESS TOOLS
+          </p>
 
           <h1>
             Grow your business
@@ -103,18 +120,22 @@ function App() {
           </h1>
 
           <p className="hero-text">
-            Generate marketing content, product descriptions, social media
-            posts and business ideas in seconds.
+            Generate marketing content, product descriptions,
+            social media posts and business ideas in seconds.
           </p>
         </section>
 
-        <form className="business-card" onSubmit={generateContent}>
+        <form
+          className="business-card"
+          onSubmit={generateContent}
+        >
           <div className="card-header">
             <div>
               <h2>Tell us about your business</h2>
+
               <p>
-                Enter a few details and we'll create useful AI-powered
-                content for you.
+                Enter a few details and we'll create useful
+                AI-powered content for you.
               </p>
             </div>
 
@@ -124,6 +145,7 @@ function App() {
           <div className="form-grid">
             <div className="form-group">
               <label>Business name</label>
+
               <input
                 name="businessName"
                 value={business.businessName}
@@ -134,6 +156,7 @@ function App() {
 
             <div className="form-group">
               <label>Business type</label>
+
               <input
                 name="businessType"
                 value={business.businessType}
@@ -143,18 +166,22 @@ function App() {
             </div>
 
             <div className="form-group full">
-              <label>What does your business offer?</label>
+              <label>
+                What does your business offer?
+              </label>
+
               <textarea
                 name="offer"
                 value={business.offer}
                 onChange={handleChange}
                 placeholder="Describe your products or services..."
                 rows="4"
-              />
+              ></textarea>
             </div>
 
             <div className="form-group">
               <label>Target customers</label>
+
               <input
                 name="targetCustomers"
                 value={business.targetCustomers}
@@ -165,6 +192,7 @@ function App() {
 
             <div className="form-group">
               <label>Location</label>
+
               <input
                 name="location"
                 value={business.location}
@@ -179,8 +207,13 @@ function App() {
             className="continue-button"
             disabled={loading}
           >
-            {loading ? "Generating..." : "Generate AI Content"}
-            <span>{loading ? "⏳" : "→"}</span>
+            {loading
+              ? "Generating..."
+              : "Generate AI Content"}
+
+            <span>
+              {loading ? "⏳" : "→"}
+            </span>
           </button>
         </form>
 
@@ -196,25 +229,31 @@ function App() {
 
             <div className="result-card">
               <h3>✦ Social Media</h3>
+
               <p>{result.socialMedia}</p>
             </div>
 
             <div className="result-card">
               <h3>✉ Marketing Email</h3>
+
               <p>{result.marketingEmail}</p>
             </div>
 
             <div className="result-card">
               <h3>✎ Product Description</h3>
+
               <p>{result.productDescription}</p>
             </div>
 
             <div className="result-card">
               <h3>💡 Business Ideas</h3>
+
               <ul>
-                {result.businessIdeas?.map((idea, index) => (
-                  <li key={index}>{idea}</li>
-                ))}
+                {result.businessIdeas?.map(
+                  (idea, index) => (
+                    <li key={index}>{idea}</li>
+                  )
+                )}
               </ul>
             </div>
           </section>
@@ -223,25 +262,42 @@ function App() {
         <section className="features">
           <div className="feature">
             <div className="feature-icon">✦</div>
+
             <h3>Social Media</h3>
-            <p>Create engaging posts for Instagram, LinkedIn and more.</p>
+
+            <p>
+              Create engaging posts for Instagram,
+              LinkedIn and more.
+            </p>
           </div>
 
           <div className="feature">
             <div className="feature-icon">✉</div>
+
             <h3>Marketing Emails</h3>
-            <p>Generate professional promotional emails quickly.</p>
+
+            <p>
+              Generate professional promotional emails
+              quickly.
+            </p>
           </div>
 
           <div className="feature">
             <div className="feature-icon">✎</div>
+
             <h3>Product Content</h3>
-            <p>Turn your product information into compelling descriptions.</p>
+
+            <p>
+              Turn your product information into
+              compelling descriptions.
+            </p>
           </div>
         </section>
       </main>
 
-      <footer>AI Business Assistant · Portfolio Project</footer>
+      <footer>
+        AI Business Assistant · Portfolio Project
+      </footer>
     </div>
   );
 }
